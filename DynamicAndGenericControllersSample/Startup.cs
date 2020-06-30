@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,13 +24,14 @@ namespace DynamicAndGenericControllersSample
             services.AddSingleton(typeof(Storage<>));
             services.
                 AddMvc(o => o.Conventions.Add(new GenericControllerRouteConvention())).
-                //ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider()));
-                ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new RemoteControllerFeatureProvider()));
+                ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider()));
+               // ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new RemoteControllerFeatureProvider()));
 
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "My API", Version = "v1" });
+                c.ResolveConflictingActions(apiDescriptions => apiDescriptions.FirstOrDefault());
             });
 
         }
@@ -46,6 +48,7 @@ namespace DynamicAndGenericControllersSample
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                
             });
 
             app.UseMvc();
